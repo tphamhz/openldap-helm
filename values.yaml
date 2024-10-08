@@ -1,0 +1,164 @@
+name: ldap
+image: osixia/openldap:1.5.0
+tls:
+  enabled: true
+  fullchain: |-
+  privkey: |-
+  cacerts: |-
+
+env:
+  LDAP_ORGANISATION: "TP Test Inc."
+  LDAP_DOMAIN: "tpham.com"
+  LDAP_ADMIN_PASSWORD: "hazelcastrox"
+  LDAP_CONFIG_PASSWORD: "hazelcastconfigrox"
+  LDAP_READONLY_USER: "true"
+  LDAP_READONLY_USER_USERNAME: "hzsa"
+  LDAP_READONLY_USER_PASSWORD: "Developer!"
+  LDAP_BASE_DN: "dc=tpham,dc=com"
+
+# Adding integer before ldif name to allow sequence order.
+ldifs:
+  00_hazelcast.ldif: |-
+    dn: cn=hazelcast,{{ LDAP_BASE_DN }}
+    userPassword: hazelcast-secret
+    description: hazelcast user
+    objectClass: simpleSecurityObject
+    objectClass: organizationalRole
+    cn: hazelcast
+  01_wan.ldif: |-
+    dn: cn=wan,{{ LDAP_BASE_DN }}
+    userPassword: wan-secret
+    description: wan user
+    objectClass: simpleSecurityObject
+    objectClass: organizationalRole
+    cn: wan
+  02_mc.ldif: |-
+    dn: cn=mc,{{ LDAP_BASE_DN }}
+    userPassword: mc-secret
+    description: control center user
+    objectClass: simpleSecurityObject
+    objectClass: organizationalRole
+    cn: mc
+  03_mc-groupou.ldif: |-
+    dn: ou=users,{{ LDAP_BASE_DN }}
+    objectClass: organizationalUnit
+    ou: Users
+
+    dn: ou=groups,{{ LDAP_BASE_DN }}
+    objectClass: organizationalUnit
+    ou: Groups
+  04_mc-admingroupou.ldif: |-
+    dn: cn=mcadmin,ou=groups,{{ LDAP_BASE_DN }}
+    objectClass: top
+    objectClass: posixGroup
+    cn: mcadmin
+    gidNumber: 5000
+  05_mc-usersgroupou.ldif: |-
+    dn: cn=mcusers,ou=groups,{{ LDAP_BASE_DN }}
+    objectClass: top
+    objectClass: posixGroup
+    cn: mcusers
+    gidNumber: 5001
+  06_mc-readonlygroup.ldif: |-
+    dn: cn=mcreadonly,ou=groups,{{ LDAP_BASE_DN }}
+    objectClass: top
+    objectClass: posixGroup
+    cn: mcreadonly
+    gidNumber: 5002
+  07_mc-metricsonlygroup.ldif: |-
+    dn: cn=mcmetricsonly,ou=groups,{{ LDAP_BASE_DN }}
+    objectClass: top
+    objectClass: posixGroup
+    cn: mcmetricsonly
+    gidNumber: 5003
+  08_alice.ldif:  |-
+    dn: cn=alice,ou=users,{{ LDAP_BASE_DN }}
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    uid: alice
+    sn: LookingGlass
+    givenName: Alice
+    cn: alice
+    displayName: Alice LookingGlass
+    uidNumber: 10000
+    gidNumber: 5000
+    userPassword: alice-secret
+    gecos: alice
+    loginShell: /bin/bash
+    homeDirectory: /home/alice
+  09_james.ldif:  |-
+    dn: cn=james,ou=users,{{ LDAP_BASE_DN }}
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    uid: james
+    sn: LookingGlass
+    givenName: James
+    cn: james
+    displayName: James Logan
+    uidNumber: 10001
+    gidNumber: 5000
+    userPassword: james-secret
+    gecos: james
+    loginShell: /bin/bash
+    homeDirectory: /home/james
+  10_hzadmin.ldif:  |-
+    dn: cn=hzadmin,ou=users,{{ LDAP_BASE_DN }}
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    uid: hzadmin
+    sn: LookingGlass
+    givenName: HzAdmin
+    cn: hzadmin
+    displayName: Hazelcast MC Admin
+    uidNumber: 10002
+    gidNumber: 5000
+    userPassword: hzadmin-secret
+    gecos: hzadmin
+    loginShell: /bin/bash
+    homeDirectory: /home/hzadmin
+  11_metricsadmin.ldif:  |-
+    dn: cn=metricsadmin,ou=users,{{ LDAP_BASE_DN }}
+    objectClass: inetOrgPerson
+    objectClass: posixAccount
+    objectClass: shadowAccount
+    uid: metricsadmin
+    sn: LookingGlass
+    givenName: MetricsAdmin
+    cn: metricsadmin
+    displayName: Metrics Only Admin
+    uidNumber: 10003
+    gidNumber: 5000
+    userPassword: metricsadmin-secret
+    gecos: metricsadmin
+    loginShell: /bin/bash
+    homeDirectory: /home/metricsadmin
+  12_addgroup.ldif:  |-
+    dn: cn=mcreadonly,ou=groups,{{ LDAP_BASE_DN }}
+    changetype: modify
+    add: memberuid
+    memberuid: cn=alice,ou=users,{{ LDAP_BASE_DN }}
+
+    dn: cn=mcusers,ou=groups,{{ LDAP_BASE_DN }}
+    changetype: modify
+    add: memberuid
+    memberuid: cn=james,ou=users,{{ LDAP_BASE_DN }}
+
+    dn: cn=hzadmin,ou=groups,{{ LDAP_BASE_DN }}
+    changetype: modify
+    add: memberuid
+    memberuid: cn=hzadmin,ou=users,{{ LDAP_BASE_DN }}
+
+    dn: cn=mcmetricsonly,ou=groups,{{ LDAP_BASE_DN }}
+    changetype: modify
+    add: memberuid
+    memberuid: cn=metricsadmin,ou=users,{{ LDAP_BASE_DN }}
+  13_hazelcast-dev.ldif: |-
+    dn: cn=devuser,{{ LDAP_BASE_DN }}
+    userPassword: dev-password
+    description: Developer user
+    objectClass: simpleSecurityObject
+    objectClass: organizationalRole
+    cn: devuser
