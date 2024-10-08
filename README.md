@@ -15,3 +15,12 @@ ldapsearch -LLL -x -H ldap://localhost:389 -b 'dc=tpham,dc=com' -D "cn=hzsa,dc=t
 ldapsearch -LLL -x -H ldap://ldap.openldap.svc.cluster.local:389 -b 'dc=tpham,dc=com' -D "cn=hzsa,dc=tpham,dc=com" -w 'Developer!'
 
 ```
+
+The LDAP accounts are populated from `values.yaml`. User credential password follows the username naming convention i.e <username>-secret
+
+## Browse LDAP on desktop
+
+1. Install Apache Directory Studio
+2. kubectl port-forward -n openldap  ldap-0 10636:636
+or kubectl port-forward -n openldap  ldap-0 1389:389
+3. Connect Apache Directory Studio to localhost:<port>
